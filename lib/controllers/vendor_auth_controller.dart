@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:cartify_vendor/global_variables.dart';
 import 'package:cartify_vendor/models/vendor.dart';
 import 'package:cartify_vendor/services/manage_http_response.dart';
+import 'package:cartify_vendor/views/screens/main_vendor_screen.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class VendorAuthController {
@@ -37,6 +39,7 @@ class VendorAuthController {
       },
       );
       manageHttpResponse(response: response, context: context, onSuccess: (){
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainVendorScreen()), (route) => false);
         showSnackBar(context, "Vendor signed in successfully");
       });
     } catch (e) {
