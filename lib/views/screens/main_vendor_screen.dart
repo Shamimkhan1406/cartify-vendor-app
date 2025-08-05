@@ -9,10 +9,17 @@ class MainVendorScreen extends StatefulWidget {
 }
 
 class _MainVendorScreenState extends State<MainVendorScreen> {
+  int _pageIndex = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _pageIndex,
+        onTap: (value){
+          setState(() {
+            _pageIndex = value;
+          });
+        },
         type: BottomNavigationBarType.fixed,
         unselectedItemColor: Colors.grey,
         selectedItemColor: Colors.deepPurple,
