@@ -31,6 +31,7 @@ class _UploadScreenState extends State<UploadScreen> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         GridView.builder(
           shrinkWrap: true, // allow the gridview to fit the content
@@ -43,7 +44,9 @@ class _UploadScreenState extends State<UploadScreen> {
           ), itemBuilder: (context, index){
             return index == 0 ? Center(
               child: IconButton(
-                onPressed: chooseImage,
+                onPressed: (){
+                  chooseImage();
+                },
                 icon: Icon(Icons.add),
               ),
             
@@ -53,8 +56,62 @@ class _UploadScreenState extends State<UploadScreen> {
               height: 50,
               child: Image.file(images[index-1])
             );
-          }
+          },
         ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 200,
+                child: TextFormField(
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Product Name',
+                    hintText: 'Enter product name',
+                  ),
+                ),
+              ),
+              SizedBox(height: 10,),
+              SizedBox(
+                width: 200,
+                child: TextFormField(
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Product Price',
+                    hintText: 'Enter product Price',
+                  ),
+                ),
+              ),
+              SizedBox(height: 10,),
+              SizedBox(
+                width: 200,
+                child: TextFormField(
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Product Quantity',
+                    hintText: 'Enter product Quantity',
+                  ),
+                ),
+              ),
+              SizedBox(height: 10,),
+              SizedBox(
+                width: 400,
+                child: TextFormField(
+                  maxLines: 3,
+                  maxLength: 300,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Product Description',
+                    hintText: 'Enter product Description',
+                  ),
+                ),
+              ),
+              SizedBox(height: 10,),
+            ],
+          ),
+        )
       ],
     );
   }
