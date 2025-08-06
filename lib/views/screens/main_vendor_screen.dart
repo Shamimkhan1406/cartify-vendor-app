@@ -1,3 +1,8 @@
+import 'package:cartify_vendor/views/screens/nav_screens/earning_screen.dart';
+import 'package:cartify_vendor/views/screens/nav_screens/edit_screen.dart';
+import 'package:cartify_vendor/views/screens/nav_screens/orders_screen.dart';
+import 'package:cartify_vendor/views/screens/nav_screens/upload_screen.dart';
+import 'package:cartify_vendor/views/screens/nav_screens/vendor_profile_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -10,6 +15,13 @@ class MainVendorScreen extends StatefulWidget {
 
 class _MainVendorScreenState extends State<MainVendorScreen> {
   int _pageIndex = 0;
+  List<Widget> pages = [
+    EarningScreen(),
+    UploadScreen(),
+    EditScreen(),
+    OrdersScreen(),
+    VendorProfileScreen(),
+  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,9 +49,10 @@ class _MainVendorScreenState extends State<MainVendorScreen> {
             icon: Icon(CupertinoIcons.shopping_cart),
             label: "Orders",
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.logout), label: "LogOut"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
       ),
+      body: pages[_pageIndex],
     );
   }
 }
