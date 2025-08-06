@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:cartify_vendor/controllers/category_controller.dart';
+import 'package:cartify_vendor/models/category.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -11,6 +13,15 @@ class UploadScreen extends StatefulWidget {
 }
 
 class _UploadScreenState extends State<UploadScreen> {
+  late Future<List<Category>> futureCategories;
+  late String name;
+  Category? selectedCategory;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    futureCategories = CategoryController().loadCategories();
+  }
   // create an instanse of image picker to handle image picking
   final ImagePicker picker = ImagePicker();
   // initialize a empty list to store selected images
@@ -94,6 +105,39 @@ class _UploadScreenState extends State<UploadScreen> {
                     hintText: 'Enter product Quantity',
                   ),
                 ),
+              ),
+              SizedBox(height: 10,),
+              FutureBuilder(
+                future: futureCategories,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(
+                      child: Text('No sub categories available'),
+                    );
+                  } else {
+                    return DropdownButton<Category>(
+                      value: selectedCategory,
+                      hint: Text('Select Category'),
+                      items:
+                          snapshot.data!.map((Category category) {
+                            return DropdownMenuItem(
+                              value: category,
+                              child: Text(category.name),
+                            );
+                          }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedCategory = value;
+                        });
+                        print(selectedCategory!.name);
+                      },
+                    );
+                  }
+                },
               ),
               SizedBox(height: 10,),
               SizedBox(
