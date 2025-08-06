@@ -30,8 +30,32 @@ class _UploadScreenState extends State<UploadScreen> {
   }
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text("Upload Screen"),
+    return Column(
+      children: [
+        GridView.builder(
+          shrinkWrap: true, // allow the gridview to fit the content
+          itemCount: images.length+1, // +1 grid for the add image button
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 4,
+            mainAxisSpacing: 4,
+            childAspectRatio: 1,
+          ), itemBuilder: (context, index){
+            return index == 0 ? Center(
+              child: IconButton(
+                onPressed: chooseImage,
+                icon: Icon(Icons.add),
+              ),
+            
+            ) 
+            : SizedBox(
+              width: 50,
+              height: 50,
+              child: Image.file(images[index-1])
+            );
+          }
+        ),
+      ],
     );
   }
 }
