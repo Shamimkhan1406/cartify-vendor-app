@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:cartify_vendor/controllers/category_controller.dart';
+import 'package:cartify_vendor/controllers/subcategory_controller.dart';
 import 'package:cartify_vendor/models/category.dart';
+import 'package:cartify_vendor/models/subcategory.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -14,8 +16,11 @@ class UploadScreen extends StatefulWidget {
 
 class _UploadScreenState extends State<UploadScreen> {
   late Future<List<Category>> futureCategories;
-  late String name;
+  Future<List<SubCategory>>? futureSubCategories;
+  //late String name;
   Category? selectedCategory;
+  SubCategory? selectedSubCategory;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -38,6 +43,11 @@ class _UploadScreenState extends State<UploadScreen> {
         images.add(File(pickedFile.path));
       });
     }
+  }
+  getSubCategoryByCategoryName(value){
+    // fetch subcategory based on category name
+    futureSubCategories = SubCategoryController().getSubCategoryByCategoryName(value.name);
+
   }
   @override
   Widget build(BuildContext context) {
@@ -107,37 +117,78 @@ class _UploadScreenState extends State<UploadScreen> {
                 ),
               ),
               SizedBox(height: 10,),
-              FutureBuilder(
-                future: futureCategories,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(
-                      child: Text('No sub categories available'),
-                    );
-                  } else {
-                    return DropdownButton<Category>(
-                      value: selectedCategory,
-                      hint: Text('Select Category'),
-                      items:
-                          snapshot.data!.map((Category category) {
-                            return DropdownMenuItem(
-                              value: category,
-                              child: Text(category.name),
-                            );
-                          }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          selectedCategory = value;
-                        });
-                        print(selectedCategory!.name);
-                      },
-                    );
-                  }
-                },
+              SizedBox(
+                width: 200,
+                child: FutureBuilder(
+                  future: futureCategories,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(
+                        child: Text('No category available'),
+                      );
+                    } else {
+                      return DropdownButton<Category>(
+                        value: selectedCategory,
+                        hint: Text('Select Category'),
+                        items:
+                            snapshot.data!.map((Category category) {
+                              return DropdownMenuItem(
+                                value: category,
+                                child: Text(category.name),
+                              );
+                            }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedCategory = value;
+                          });
+                          getSubCategoryByCategoryName(selectedCategory);
+                          print(selectedCategory!.name);
+                        },
+                      );
+                    }
+                  },
+                ),
+              ),
+              SizedBox(height: 10,),
+              // data type of futureSubCategories is Future<List<SubCategory>>
+              SizedBox(
+                width: 200,
+                child: FutureBuilder(
+                  future: futureSubCategories,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(
+                        child: Text('No sub categories available'),
+                      );
+                    } else {
+                      return DropdownButton<SubCategory>(
+                        value: selectedSubCategory,
+                        hint: Text('Select Sub Category'),
+                        items:
+                            snapshot.data!.map((SubCategory subcategory) {
+                              return DropdownMenuItem(
+                                value: subcategory,
+                                child: Text(subcategory.subCategoryName),
+                              );
+                            }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedSubCategory = value;
+                          });
+                          print(selectedSubCategory!.subCategoryName);
+                        },
+                      );
+                    }
+                  },
+                ),
               ),
               SizedBox(height: 10,),
               SizedBox(
