@@ -8,12 +8,12 @@ class product {
   final int quantity;
   final String description;
   final String category;
-  final String subCategory;
-  final String images;
   final String vendorId;
   final String fullName;
+  final String subCategory;
+  final List<String> images;
 
-  product({required this.id, required this.productName, required this.productPrice, required this.quantity, required this.description, required this.category, required this.subCategory, required this.images, required this.vendorId, required this.fullName});
+  product({required this.id, required this.productName, required this.productPrice, required this.quantity, required this.description, required this.category, required this.vendorId, required this.fullName, required this.subCategory, required this.images});
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
@@ -23,10 +23,10 @@ class product {
       'quantity': quantity,
       'description': description,
       'category': category,
-      'subCategory': subCategory,
-      'images': images,
       'vendorId': vendorId,
       'fullName': fullName,
+      'subCategory': subCategory,
+      'images': images,
     };
   }
 
@@ -38,11 +38,11 @@ class product {
       quantity: map['quantity'] as int,
       description: map['description'] as String,
       category: map['category'] as String,
-      subCategory: map['subCategory'] as String,
-      images: map['images'] as String,
       vendorId: map['vendorId'] as String,
       fullName: map['fullName'] as String,
-    );
+      subCategory: map['subCategory'] as String,
+      images: List<String>.from((map['images'] as List<String>),
+    ));
   }
 
   String toJson() => json.encode(toMap());
