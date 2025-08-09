@@ -126,6 +126,7 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
                   SizedBox(
                     width: 200,
                     child: TextFormField(
+                      keyboardType: TextInputType.number,
                       onChanged: (value) {
                         productPrice = double.parse(value);
                       },
@@ -146,6 +147,7 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
                   SizedBox(
                     width: 200,
                     child: TextFormField(
+                      keyboardType: TextInputType.number,
                       onChanged: (value) {
                         quantity = int.parse(value);
                       },
