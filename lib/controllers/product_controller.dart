@@ -7,7 +7,7 @@ import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:http/http.dart' as http;
 
 class ProductController {
-  void uploadProduct({
+  Future<void> uploadProduct({
     required String productName,
     required double productPrice,
     required int quantity,

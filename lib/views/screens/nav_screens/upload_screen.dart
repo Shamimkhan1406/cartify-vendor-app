@@ -30,6 +30,8 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
   late int quantity;
   late String description;
 
+  bool isLoading = false;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -166,11 +168,17 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
                     child: FutureBuilder(
                       future: futureCategories,
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
                         } else if (snapshot.hasError) {
-                          return Center(child: Text('Error: ${snapshot.error}'));
-                        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                          return Center(
+                            child: Text('Error: ${snapshot.error}'),
+                          );
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
                           return const Center(
                             child: Text('No category available'),
                           );
@@ -204,11 +212,17 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
                     child: FutureBuilder(
                       future: futureSubCategories,
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
                         } else if (snapshot.hasError) {
-                          return Center(child: Text('Error: ${snapshot.error}'));
-                        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                          return Center(
+                            child: Text('Error: ${snapshot.error}'),
+                          );
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
                           return const Center(
                             child: Text('No sub categories available'),
                           );
@@ -267,18 +281,31 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
                   final fullName = ref.read(vendorProvider)!.fullName;
                   final vendorId = ref.read(vendorProvider)!.id;
                   if (_formKey.currentState!.validate()) {
-                    _productController.uploadProduct(
-                      productName: productName,
-                      productPrice: productPrice,
-                      quantity: quantity,
-                      description: description,
-                      category: selectedCategory!.name,
-                      vendorId: vendorId,
-                      fullName: fullName,
-                      subCategory: selectedSubCategory!.subCategoryName,
-                      pickedImages: images,
-                      context: context,
-                    );
+                    setState(() {
+                      isLoading = true;
+                    });
+                    await _productController
+                        .uploadProduct(
+                          productName: productName,
+                          productPrice: productPrice,
+                          quantity: quantity,
+                          description: description,
+                          category: selectedCategory!.name,
+                          vendorId: vendorId,
+                          fullName: fullName,
+                          subCategory: selectedSubCategory!.subCategoryName,
+                          pickedImages: images,
+                          context: context,
+                        )
+                        .whenComplete(() {
+                          setState(() {
+                            isLoading = false;
+                          });
+                          selectedCategory = null;
+                          selectedSubCategory = null;
+                          images.clear();
+                          _formKey.currentState!.reset();
+                        });
                   } else {
                     print('please fill all the fields');
                   }
@@ -291,13 +318,16 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
                     borderRadius: BorderRadius.circular(5),
                   ),
                   child: Center(
-                    child: Text(
-                      'Upload Product',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child:
+                        isLoading
+                            ? CircularProgressIndicator(color: Colors.white)
+                            : Text(
+                              'Upload Product',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                   ),
                 ),
               ),
