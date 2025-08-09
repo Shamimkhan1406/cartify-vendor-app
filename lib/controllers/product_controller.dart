@@ -1,11 +1,13 @@
 import 'dart:io';
 
 import 'package:cartify_vendor/global_variables.dart';
+import 'package:cartify_vendor/models/product.dart';
+import 'package:cartify_vendor/services/manage_http_response.dart';
 import 'package:cloudinary_public/cloudinary_public.dart';
+import 'package:http/http.dart' as http;
 
 class ProductController {
   void uploadProduct({
-    required String id,
     required String productName,
     required double productPrice,
     required int quantity,
@@ -15,20 +17,54 @@ class ProductController {
     required String fullName,
     required String subCategory,
     required List<File> pickedImages,
-  }) async{
+    required context,
+  }) async {
     try {
-      if(pickedImages != null){
+      if (pickedImages != null) {
         final cloudinary = CloudinaryPublic(cloudName, uploadPreset);
-        List <String> images = [];
+        List<String> images = [];
         // loop through each image in the pickedImages list
         for (File pickedImage in pickedImages) {
-          CloudinaryResponse cloudinaryResponse = await cloudinary.uploadFile(CloudinaryFile.fromFile(pickedImage.path, folder: productName),);
+          CloudinaryResponse cloudinaryResponse = await cloudinary.uploadFile(
+            CloudinaryFile.fromFile(pickedImage.path, folder: productName),
+          );
           // add the secure URL of the uploaded image to the images list
           images.add(cloudinaryResponse.secureUrl);
         }
         print(images);
+        if (category.isNotEmpty && subCategory.isNotEmpty) {
+          Product product = Product(
+            id: '',
+            productName: productName,
+            productPrice: productPrice,
+            quantity: quantity,
+            description: description,
+            category: category,
+            vendorId: vendorId,
+            fullName: fullName,
+            subCategory: subCategory,
+            images: images,
+          );
+          http.Response response = await http.post(
+            Uri.parse("$uri/api/add-product"),
+            body: product.toJson(),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+          );
+          manageHttpResponse(response: response, context: context, onSuccess: (){
+            showSnackBar(context, "Product added successfully");
+            //Navigator.pop(context);
+          });
+        }
+        else{
+          showSnackBar(context, 'Please select a category and subcategory');
+        }
       }
       // Here you would typically send the product data to your backend API
+      else {
+        showSnackBar(context, 'select at least one image');
+      }
     } catch (e) {
       print(e);
     }

@@ -1,26 +1,34 @@
 import 'dart:io';
 
 import 'package:cartify_vendor/controllers/category_controller.dart';
+import 'package:cartify_vendor/controllers/product_controller.dart';
 import 'package:cartify_vendor/controllers/subcategory_controller.dart';
 import 'package:cartify_vendor/models/category.dart';
 import 'package:cartify_vendor/models/subcategory.dart';
+import 'package:cartify_vendor/provider/vendor_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
-class UploadScreen extends StatefulWidget {
+class UploadScreen extends ConsumerStatefulWidget {
   const UploadScreen({super.key});
 
   @override
-  State<UploadScreen> createState() => _UploadScreenState();
+  _UploadScreenState createState() => _UploadScreenState();
 }
 
-class _UploadScreenState extends State<UploadScreen> {
+class _UploadScreenState extends ConsumerState<UploadScreen> {
+  ProductController _productController = ProductController();
   final _formKey = GlobalKey<FormState>();
   late Future<List<Category>> futureCategories;
   Future<List<SubCategory>>? futureSubCategories;
   //late String name;
   Category? selectedCategory;
   SubCategory? selectedSubCategory;
+  late String productName;
+  late double productPrice;
+  late int quantity;
+  late String description;
 
   @override
   void initState() {
@@ -28,29 +36,32 @@ class _UploadScreenState extends State<UploadScreen> {
     super.initState();
     futureCategories = CategoryController().loadCategories();
   }
+
   // create an instanse of image picker to handle image picking
   final ImagePicker picker = ImagePicker();
   // initialize a empty list to store selected images
   List<File> images = [];
   // define a function to choose image from gallery
-  chooseImage() async{
+  chooseImage() async {
     // use the picker to choose the image from gallery
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile == null){
+    if (pickedFile == null) {
       print('no image is picked');
-    }
-    else{
+    } else {
       setState(() {
         images.add(File(pickedFile.path));
       });
     }
   }
-  getSubCategoryByCategoryName(value){
+
+  getSubCategoryByCategoryName(value) {
     // fetch subcategory based on category name
-    futureSubCategories = SubCategoryController().getSubCategoryByCategoryName(value.name);
+    futureSubCategories = SubCategoryController().getSubCategoryByCategoryName(
+      value.name,
+    );
     selectedSubCategory = null;
-    
   }
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -60,27 +71,28 @@ class _UploadScreenState extends State<UploadScreen> {
         children: [
           GridView.builder(
             shrinkWrap: true, // allow the gridview to fit the content
-            itemCount: images.length+1, // +1 grid for the add image button
+            itemCount: images.length + 1, // +1 grid for the add image button
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               crossAxisSpacing: 4,
               mainAxisSpacing: 4,
               childAspectRatio: 1,
-            ), itemBuilder: (context, index){
-              return index == 0 ? Center(
-                child: IconButton(
-                  onPressed: (){
-                    chooseImage();
-                  },
-                  icon: Icon(Icons.add),
-                ),
-              
-              ) 
-              : SizedBox(
-                width: 50,
-                height: 50,
-                child: Image.file(images[index-1])
-              );
+            ),
+            itemBuilder: (context, index) {
+              return index == 0
+                  ? Center(
+                    child: IconButton(
+                      onPressed: () {
+                        chooseImage();
+                      },
+                      icon: Icon(Icons.add),
+                    ),
+                  )
+                  : SizedBox(
+                    width: 50,
+                    height: 50,
+                    child: Image.file(images[index - 1]),
+                  );
             },
           ),
           Padding(
@@ -91,6 +103,9 @@ class _UploadScreenState extends State<UploadScreen> {
                 SizedBox(
                   width: 200,
                   child: TextFormField(
+                    onChanged: (value) {
+                      productName = value;
+                    },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter a product name';
@@ -104,10 +119,13 @@ class _UploadScreenState extends State<UploadScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 10,),
+                SizedBox(height: 10),
                 SizedBox(
                   width: 200,
                   child: TextFormField(
+                    onChanged: (value) {
+                      productPrice = double.parse(value);
+                    },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter product price';
@@ -121,10 +139,13 @@ class _UploadScreenState extends State<UploadScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 10,),
+                SizedBox(height: 10),
                 SizedBox(
                   width: 200,
                   child: TextFormField(
+                    onChanged: (value) {
+                      quantity = int.parse(value);
+                    },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter product Quantity';
@@ -138,7 +159,7 @@ class _UploadScreenState extends State<UploadScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 10,),
+                SizedBox(height: 10),
                 SizedBox(
                   width: 200,
                   child: FutureBuilder(
@@ -175,7 +196,7 @@ class _UploadScreenState extends State<UploadScreen> {
                     },
                   ),
                 ),
-                SizedBox(height: 10,),
+                SizedBox(height: 10),
                 // data type of futureSubCategories is Future<List<SubCategory>>
                 SizedBox(
                   width: 200,
@@ -212,10 +233,13 @@ class _UploadScreenState extends State<UploadScreen> {
                     },
                   ),
                 ),
-                SizedBox(height: 10,),
+                SizedBox(height: 10),
                 SizedBox(
                   width: 400,
                   child: TextFormField(
+                    onChanged: (value) {
+                      description = value;
+                    },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter product Description';
@@ -231,18 +255,30 @@ class _UploadScreenState extends State<UploadScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 10,),
+                SizedBox(height: 10),
               ],
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InkWell(
-              onTap: () {
+              onTap: () async {
+                final fullName = ref.read(vendorProvider)!.fullName;
+                final vendorId = ref.read(vendorProvider)!.id;
                 if (_formKey.currentState!.validate()) {
-                  print('uploading product');
-                }
-                else{
+                  _productController.uploadProduct(
+                    productName: productName,
+                    productPrice: productPrice,
+                    quantity: quantity,
+                    description: description,
+                    category: selectedCategory!.name,
+                    vendorId: vendorId,
+                    fullName: fullName,
+                    subCategory: selectedSubCategory!.subCategoryName,
+                    pickedImages: images,
+                    context: context,
+                  );
+                } else {
                   print('please fill all the fields');
                 }
               },
@@ -251,14 +287,20 @@ class _UploadScreenState extends State<UploadScreen> {
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                   color: Colors.green,
-                  borderRadius: BorderRadius.circular(5)
+                  borderRadius: BorderRadius.circular(5),
                 ),
                 child: Center(
-                  child: Text('Upload Product', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+                  child: Text(
+                    'Upload Product',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
