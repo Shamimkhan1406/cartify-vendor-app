@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  runApp(ProviderScope(child: const MyApp()));
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends ConsumerWidget {
@@ -14,23 +14,23 @@ class MyApp extends ConsumerWidget {
 
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context,WidgetRef ref) {
-    Future <void> checkTokenAndSetUser(WidgetRef ref) async{
+  Widget build(BuildContext context, WidgetRef ref) {
+    Future<void> checkTokenAndSetUser(WidgetRef ref) async {
       // obtain a instance of shared preferences
       SharedPreferences preferences = await SharedPreferences.getInstance();
       // retrive the auth token and user data stored locally
       String? token = preferences.getString('auth_token');
       String? vendorJson = preferences.getString('vendor');
-      if(token != null && vendorJson != null){
+      if (token != null && vendorJson != null) {
         // update the app state with the user data using reverpod
         ref.read(vendorProvider.notifier).setVendor(vendorJson);
-        
-      }
-      else{
+      } else {
         ref.read(vendorProvider.notifier).signOut();
       }
     }
+
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         // This is the theme of your application.
@@ -50,15 +50,18 @@ class MyApp extends ConsumerWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: FutureBuilder(future: checkTokenAndSetUser(ref), builder: (context, snapshot){
-        if(snapshot.connectionState == ConnectionState.waiting){
-          return const Center(child: CircularProgressIndicator());
-        }
-        else{
-          return ref.watch(vendorProvider) == null ? LoginScreen() : MainVendorScreen();
-        }
-      }),
+      home: FutureBuilder(
+        future: checkTokenAndSetUser(ref),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else {
+            return ref.watch(vendorProvider) == null
+                ? LoginScreen()
+                : MainVendorScreen();
+          }
+        },
+      ),
     );
   }
 }
-
