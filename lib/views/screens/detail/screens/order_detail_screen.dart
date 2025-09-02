@@ -1,10 +1,12 @@
+import 'package:cartify_vendor/controllers/order_controller.dart';
 import 'package:cartify_vendor/models/order.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class OrderDetailScreen extends StatelessWidget {
   final Order orders;
-  const OrderDetailScreen({super.key, required this.orders});
+  OrderDetailScreen({super.key, required this.orders});
+  final OrderController orderController = OrderController();
 
   @override
   Widget build(BuildContext context) {
@@ -283,7 +285,12 @@ class OrderDetailScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () async {
+                            await orderController.updateDeliveryStatus(
+                              id: orders.id,
+                              context: context,
+                            );
+                          },
                           child: Text(
                             'Mark as Delivered',
                             style: GoogleFonts.montserrat(
@@ -296,7 +303,12 @@ class OrderDetailScreen extends StatelessWidget {
                         ),
                         SizedBox(width: 10),
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () async {
+                            await orderController.cancelOrder(
+                              id: orders.id,
+                              context: context,
+                            );
+                          },
                           child: Text(
                             'Cancel',
                             style: GoogleFonts.montserrat(
