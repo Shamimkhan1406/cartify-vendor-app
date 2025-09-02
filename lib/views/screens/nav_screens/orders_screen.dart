@@ -347,7 +347,7 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
                                           ),
                                         ),
                                       ),
-                                      Positioned(
+                                      order.delivered == true ? Positioned(
                                         top: 115,
                                         left: 298,
                                         child: InkWell(
@@ -360,7 +360,7 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
                                             height: 20,
                                           ),
                                         ),
-                                      ),
+                                      ) : SizedBox(),
                                     ],
                                   ),
                                 ),

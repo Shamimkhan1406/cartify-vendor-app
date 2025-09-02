@@ -1,4 +1,3 @@
-
 import 'package:cartify_vendor/models/order.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -198,15 +197,15 @@ class OrderDetailScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                          Positioned(
-                            top: 115,
-                            left: 298,
-                            child: Image.asset(
-                              'assets/icons/delete.png',
-                              width: 20,
-                              height: 20,
-                            ),
-                          ),
+                          // Positioned(
+                          //   top: 115,
+                          //   left: 298,
+                          //   child: Image.asset(
+                          //     'assets/icons/delete.png',
+                          //     width: 20,
+                          //     height: 20,
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),
@@ -220,7 +219,7 @@ class OrderDetailScreen extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Container(
               width: 336,
-              height: orders.delivered == true ? 175 : 120,
+              height: 175,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
@@ -256,7 +255,8 @@ class OrderDetailScreen extends StatelessWidget {
                             color: Colors.black,
                           ),
                         ),
-                        Text('To ${orders.fullName}',
+                        Text(
+                          'To ${orders.fullName}',
                           style: GoogleFonts.roboto(
                             fontSize: 17,
                             letterSpacing: 1.5,
@@ -264,7 +264,8 @@ class OrderDetailScreen extends StatelessWidget {
                             color: Colors.black,
                           ),
                         ),
-                        Text('Order Id: ${orders.id}',
+                        Text(
+                          'Order Id: ${orders.id}',
                           style: GoogleFonts.lato(
                             //fontSize: 17,
                             letterSpacing: 1.5,
@@ -272,30 +273,43 @@ class OrderDetailScreen extends StatelessWidget {
                             color: Colors.black,
                           ),
                         ),
-                        
                       ],
                     ),
                   ),
-                  orders.delivered == true ? 
+
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: ElevatedButton(onPressed: (){}, child: Text('Leave a Review',style: GoogleFonts.montserrat(
-                              //fontSize: 17,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {},
+                          child: Text(
+                            'Mark as Delivered',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 12,
                               letterSpacing: 1.5,
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
-                            ),)),
-                  ) :
-                  // orders.processing == true ?
-                  // ElevatedButton(onPressed: (){}, child: Text('Cancel Order',style: GoogleFonts.lato(
-                  //           fontSize: 17,
-                  //           letterSpacing: 1.5,
-                  //           fontWeight: FontWeight.bold,
-                  //           color: Colors.black,
-                  //         ),)):
-                  SizedBox(
-
-                  )
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        ElevatedButton(
+                          onPressed: () {},
+                          child: Text(
+                            'Cancel',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 12,
+                              letterSpacing: 1.5,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
