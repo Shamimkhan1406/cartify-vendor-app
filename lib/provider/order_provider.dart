@@ -8,7 +8,7 @@ class OrderProvider extends StateNotifier<List<Order>> {
     state = orders;
   }
 
-  void updateOrderStatus(String orderId, {bool? delivered, bool? processing}) {
+  updateOrderStatus(String orderId, {bool? delivered, bool? processing}) {
     state = [
       for (final order in state)
         if (order.id == orderId)

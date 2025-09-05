@@ -1,19 +1,31 @@
 import 'package:cartify_vendor/controllers/order_controller.dart';
 import 'package:cartify_vendor/models/order.dart';
+import 'package:cartify_vendor/provider/order_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class OrderDetailScreen extends StatelessWidget {
+class OrderDetailScreen extends ConsumerStatefulWidget {
   final Order orders;
   OrderDetailScreen({super.key, required this.orders});
+
+  @override
+  ConsumerState<OrderDetailScreen> createState() => _OrderDetailScreenState();
+}
+
+class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
   final OrderController orderController = OrderController();
 
   @override
   Widget build(BuildContext context) {
+    // watch the list of orders to trigger auto ui update
+    final orders = ref.watch(orderProvider);
+    // final the updated order in the list
+    final updatedOrder = orders.firstWhere((o) => o.id == widget.orders.id, orElse: () => widget.orders,);
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          orders.productName,
+          widget.orders.productName,
           style: GoogleFonts.montserrat(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -76,7 +88,7 @@ class OrderDetailScreen extends StatelessWidget {
                                     top: 5,
                                     left: 10,
                                     child: Image.network(
-                                      orders.image,
+                                      widget.orders.image,
                                       width: 58,
                                       height: 67,
                                       fit: BoxFit.cover,
@@ -107,7 +119,7 @@ class OrderDetailScreen extends StatelessWidget {
                                           SizedBox(
                                             width: double.infinity,
                                             child: Text(
-                                              orders.productName,
+                                              widget.orders.productName,
                                               style: GoogleFonts.montserrat(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.bold,
@@ -121,7 +133,7 @@ class OrderDetailScreen extends StatelessWidget {
                                           Align(
                                             alignment: Alignment.centerLeft,
                                             child: Text(
-                                              orders.category,
+                                              widget.orders.category,
                                               style: GoogleFonts.montserrat(
                                                 fontSize: 12,
                                                 color: const Color(0xff9e9e9e),
@@ -134,7 +146,7 @@ class OrderDetailScreen extends StatelessWidget {
                                             alignment: Alignment.centerLeft,
 
                                             child: Text(
-                                              'Quantity: ${orders.quantity}',
+                                              'Quantity: ${widget.orders.quantity}',
                                               style: GoogleFonts.montserrat(
                                                 fontSize: 12,
                                                 color: const Color(0xff9e9e9e),
@@ -144,7 +156,7 @@ class OrderDetailScreen extends StatelessWidget {
                                           ),
                                           SizedBox(height: 5),
                                           Text(
-                                            '₹${orders.productPrice}',
+                                            '₹${widget.orders.productPrice}',
                                             style: GoogleFonts.montserrat(
                                               fontSize: 14,
                                               fontWeight: FontWeight.bold,
@@ -169,9 +181,9 @@ class OrderDetailScreen extends StatelessWidget {
                               clipBehavior: Clip.antiAlias,
                               decoration: BoxDecoration(
                                 color:
-                                    orders.delivered == true
+                                    updatedOrder.delivered == true
                                         ? Colors.green
-                                        : orders.processing == true
+                                        : updatedOrder.processing == true
                                         ? Colors.purpleAccent
                                         : Colors.red,
                                 borderRadius: BorderRadius.circular(4),
@@ -183,9 +195,9 @@ class OrderDetailScreen extends StatelessWidget {
                                     left: 9,
                                     top: 2,
                                     child: Text(
-                                      orders.delivered == true
+                                      updatedOrder.delivered == true
                                           ? 'Delivered'
-                                          : orders.processing == true
+                                          : updatedOrder.processing == true
                                           ? 'Processing'
                                           : 'Cancelled',
                                       style: GoogleFonts.montserrat(
@@ -249,7 +261,7 @@ class OrderDetailScreen extends StatelessWidget {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          '${orders.state} ${orders.city} ${orders.locality}',
+                          '${widget.orders.state} ${widget.orders.city} ${widget.orders.locality}',
                           style: GoogleFonts.lato(
                             fontSize: 16,
                             letterSpacing: 1.5,
@@ -258,7 +270,7 @@ class OrderDetailScreen extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          'To ${orders.fullName}',
+                          'To ${widget.orders.fullName}',
                           style: GoogleFonts.roboto(
                             fontSize: 17,
                             letterSpacing: 1.5,
@@ -267,7 +279,7 @@ class OrderDetailScreen extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          'Order Id: ${orders.id}',
+                          'Order Id: ${widget.orders.id}',
                           style: GoogleFonts.lato(
                             //fontSize: 17,
                             letterSpacing: 1.5,
@@ -285,16 +297,20 @@ class OrderDetailScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         ElevatedButton(
-                          onPressed: () async {
+                          onPressed: updatedOrder.delivered == true ? null : () async {
                             await orderController.updateDeliveryStatus(
-                              id: orders.id,
+                              id: widget.orders.id,
                               context: context,
+                            ).whenComplete(
+                              (){
+                                ref.read(orderProvider.notifier).updateOrderStatus(widget.orders.id, delivered: true);
+                              }
                             );
                           },
                           child: Text(
-                            'Mark as Delivered',
+                            updatedOrder.delivered == true ? 'Delivered' : 'Mark as Delivered',
                             style: GoogleFonts.montserrat(
-                              fontSize: 12,
+                              fontSize: 10,
                               letterSpacing: 1.5,
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
@@ -303,16 +319,20 @@ class OrderDetailScreen extends StatelessWidget {
                         ),
                         SizedBox(width: 10),
                         ElevatedButton(
-                          onPressed: () async {
+                          onPressed: updatedOrder.processing == false ? null : () async {
                             await orderController.cancelOrder(
-                              id: orders.id,
+                              id: widget.orders.id,
                               context: context,
+                            ).whenComplete(
+                              (){
+                                ref.read(orderProvider.notifier).updateOrderStatus(widget.orders.id, processing: false);
+                              }
                             );
                           },
                           child: Text(
-                            'Cancel',
+                            updatedOrder.processing == false ? "Cancelled" : 'Cancel',
                             style: GoogleFonts.montserrat(
-                              fontSize: 12,
+                              fontSize: 10,
                               letterSpacing: 1.5,
                               fontWeight: FontWeight.bold,
                               color: Colors.red,
