@@ -297,7 +297,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         ElevatedButton(
-                          onPressed: updatedOrder.delivered == true ? null : () async {
+                          onPressed: updatedOrder.delivered == true || updatedOrder.processing == false ? null : () async {
                             await orderController.updateDeliveryStatus(
                               id: widget.orders.id,
                               context: context,
@@ -319,7 +319,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                         ),
                         SizedBox(width: 10),
                         ElevatedButton(
-                          onPressed: updatedOrder.processing == false ? null : () async {
+                          onPressed: updatedOrder.processing == false || updatedOrder.delivered == true ? null : () async {
                             await orderController.cancelOrder(
                               id: widget.orders.id,
                               context: context,
