@@ -72,12 +72,23 @@ class _EarningScreenState extends ConsumerState<EarningScreen> {
         child: Center(child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text("Total Orders", style: GoogleFonts.montserrat(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),),
+            SizedBox(height: 8),
+            Text("✓  ${totalEarnings["orderCount"]}", style: GoogleFonts.montserrat(
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+              color: Colors.blue,
+            ),),
+            SizedBox(height: 16),
             Text("Total Earnings", style: GoogleFonts.montserrat(
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),),
             SizedBox(height: 8),
-            Text("₹${totalEarnings.toStringAsFixed(2)}", style: GoogleFonts.montserrat(
+            Text("₹${totalEarnings["earnings"]}", style: GoogleFonts.montserrat(
               fontSize: 36,
               fontWeight: FontWeight.bold,
               color: Colors.green,
