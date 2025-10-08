@@ -5,6 +5,7 @@ import 'package:cartify_vendor/models/product.dart';
 import 'package:cartify_vendor/services/manage_http_response.dart';
 import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProductController {
   Future<void> uploadProduct({
@@ -19,6 +20,8 @@ class ProductController {
     required List<File> pickedImages,
     required context,
   }) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String? token = preferences.getString('auth_token');
     try {
       if (pickedImages != null) {
         final cloudinary = CloudinaryPublic(cloudName, uploadPreset);
@@ -50,6 +53,7 @@ class ProductController {
             body: product.toJson(),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
+              'x-auth-token': token!,
             },
           );
           manageHttpResponse(response: response, context: context, onSuccess: (){

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:cartify_vendor/models/order.dart';
 import 'package:cartify_vendor/services/manage_http_response.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../global_variables.dart';
 
 
@@ -10,10 +11,13 @@ class OrderController {
   // functions to get orders by vendorId
   Future<List<Order>> loadOrders({required String vendorId}) async{
     try {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      String? token = preferences.getString('auth_token');
       // send http get request to the server
       http.Response response = await http.get(Uri.parse('$uri/api/orders/vendors/$vendorId'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
+        'x-auth-token': token!,
       },
       );
     // check if the response is successful
