@@ -17,7 +17,7 @@ class VendorAuthController {
   Future<void> signupVendor({required String fullName, required String email, required String password, required context }) async {
 
     try {
-      Vendor vendor = Vendor(id: '', fullName: fullName, email: email, state: '', city: '', locality: '', role: '', password: password);
+      Vendor vendor = Vendor(id: '', fullName: fullName, email: email, state: '', city: '', locality: '', role: '', password: password, token: '');
       http.Response response = await http.post(Uri.parse("$uri/api/v2/vendor/signup"),
       body: vendor.toJson(),
       headers: <String, String>{
@@ -32,7 +32,7 @@ class VendorAuthController {
     }
   }
   // signin vendor
-  Future<void> signinVendor({required String email, required String password, required context}) async{
+  Future<void> signinVendor({required String email, required String password, required context,required WidgetRef ref}) async{
     try {
       http.Response response = await http.post(Uri.parse("$uri/api/v2/vendor/signin"),
       body: jsonEncode({
@@ -44,22 +44,65 @@ class VendorAuthController {
       },
       );
       manageHttpResponse(response: response, context: context, onSuccess: ()async{
-        SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-        String token = jsonDecode(response.body)['token'];
-        sharedPreferences.setString('auth_token', token);
+        // access shared prefferences to save the token and user data storage
+          SharedPreferences preferences = await SharedPreferences.getInstance();
+          // Extract the authentication token from res body
+          String token = jsonDecode(response.body)['token'];
+          // strore the auth token in shared preferences
+          await preferences.setString("auth_token", token);
+          // encode the user data received from the backend as json
+          final userJson = jsonEncode(jsonDecode(response.body));
+          // update the app state with the user data using reverpod
+          ref.read(vendorProvider.notifier).setVendor(response.body);
+          // store the user data in shared preferences for future use
+          await preferences.setString("user", userJson);
 
-        // encode the userdata received from backend
-        String vendorJson = jsonEncode(jsonDecode(response.body)['vendor']);
-        // update the app state with the user data using reverpod
-        providerContainer.read(vendorProvider.notifier).setVendor(vendorJson);
-        // store the data in shared preferences
-        sharedPreferences.setString('vendor', vendorJson);
-        // navigate to the main vendor screen
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainVendorScreen()), (route) => false);
-        showSnackBar(context, "Vendor signed in successfully");
+          if (ref.read(vendorProvider)!.token.isNotEmpty) {
+            // navigate to the main screen
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => MainVendorScreen()),
+              (route) => false,
+            );
+            // show a snackbar with the message
+            showSnackBar(context, "logged in successfully");
+          }
       });
     } catch (e) {
       showSnackBar(context, e.toString());
+    }
+  }
+  // get user data
+  getUserData(context, WidgetRef ref) async {
+    try {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      String? token = preferences.getString('auth_token');
+      if (token == null) {
+        preferences.setString('auth_token', '');
+      }
+      var tokenResponse = await http.post(
+        Uri.parse('$uri/api/vendor/tokenIsValid'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'x-auth-token': token!,
+        },
+      );
+      var response = jsonDecode(tokenResponse.body);
+      if (response == true) {
+        http.Response userResponse = await http.get(
+          Uri.parse('$uri/get-vendor'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'x-auth-token': token,
+          },
+        );
+        ref.read(vendorProvider.notifier).setVendor(userResponse.body);
+      } else {
+        showSnackBar(context, "Your login has expired. Please log in again.");
+      }
+    } catch (e) {
+      ///print('Error getting user data: $e');
+      showSnackBar(context, "Error getting user data: ${e.toString()}");
     }
   }
 }

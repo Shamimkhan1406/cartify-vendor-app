@@ -1,9 +1,9 @@
+import 'package:cartify_vendor/controllers/vendor_auth_controller.dart';
 import 'package:cartify_vendor/provider/vendor_provider.dart';
 import 'package:cartify_vendor/views/screens/authentication/login_screen.dart';
 import 'package:cartify_vendor/views/screens/main_vendor_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -15,18 +15,9 @@ class MyApp extends ConsumerWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Future<void> checkTokenAndSetUser(WidgetRef ref) async {
-      // obtain a instance of shared preferences
-      SharedPreferences preferences = await SharedPreferences.getInstance();
-      // retrive the auth token and user data stored locally
-      String? token = preferences.getString('auth_token');
-      String? vendorJson = preferences.getString('vendor');
-      if (token != null && vendorJson != null) {
-        // update the app state with the user data using reverpod
-        ref.read(vendorProvider.notifier).setVendor(vendorJson);
-      } else {
-        ref.read(vendorProvider.notifier).signOut();
-      }
+    Future<void> checkTokenAndSetUser(context,WidgetRef ref) async {
+      await VendorAuthController().getUserData(context, ref);
+    ref.watch(vendorProvider);
     }
 
     return MaterialApp(
@@ -51,15 +42,14 @@ class MyApp extends ConsumerWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       home: FutureBuilder(
-        future: checkTokenAndSetUser(ref),
+        future: checkTokenAndSetUser(context, ref),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
-          } else {
-            return ref.watch(vendorProvider) == null
-                ? LoginScreen()
-                : MainVendorScreen();
+            
           }
+          final vendor = ref.watch(vendorProvider);
+          return vendor!.token.isNotEmpty ? MainVendorScreen() : LoginScreen();
         },
       ),
     );
