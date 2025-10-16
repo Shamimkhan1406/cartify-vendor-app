@@ -18,7 +18,7 @@ class VendorAuthController {
 
     try {
       Vendor vendor = Vendor(id: '', fullName: fullName, email: email, state: '', city: '', locality: '', role: '', password: password);
-      http.Response response = await http.post(Uri.parse("$uri/api/vendor/signup"),
+      http.Response response = await http.post(Uri.parse("$uri/api/v2/vendor/signup"),
       body: vendor.toJson(),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -34,7 +34,7 @@ class VendorAuthController {
   // signin vendor
   Future<void> signinVendor({required String email, required String password, required context}) async{
     try {
-      http.Response response = await http.post(Uri.parse("$uri/api/vendor/signin"),
+      http.Response response = await http.post(Uri.parse("$uri/api/v2/vendor/signin"),
       body: jsonEncode({
         'email': email,
         'password': password,
