@@ -49,7 +49,8 @@ class _EarningScreenState extends ConsumerState<EarningScreen> {
             CircleAvatar(
               backgroundColor: Colors.purple,
               child: Text(
-                vendor!.fullName[0].toUpperCase(),
+                vendor!.fullName.isEmpty ? 'U' :
+                vendor.fullName[0].toUpperCase(),
                 style: GoogleFonts.montserrat(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,

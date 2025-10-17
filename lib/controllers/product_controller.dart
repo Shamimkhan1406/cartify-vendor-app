@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:cartify_vendor/global_variables.dart';
@@ -73,4 +74,39 @@ class ProductController {
       print(e);
     }
   }
+
+  // display related product by subcategory
+  Future<List<Product>> loadVendorsProduct(String vendorId)async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('auth_token');
+      http.Response response = await http.get(Uri.parse('$uri/api/products/$vendorId'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'x-auth-token': token!,
+        },
+      );
+      // check the http response status code
+      if (response.statusCode == 200) {
+        // decode the json response body into list of dynamic objects type
+        final List<dynamic> data = jsonDecode(response.body) as List<dynamic>;
+
+        // map the list of dynamic objects to a list of Product objects
+        List<Product> vendorsProduct = data.map((product)=> Product.fromMap(product as Map<String, dynamic>)).toList();
+        return vendorsProduct;
+      } 
+      else if(response.statusCode == 404){
+        return [];
+      }
+      else {
+        // if the response status code is not 200, throw an error
+        throw Exception('Failed to load vendors Products');
+      }
+    } catch (e) {
+      // Handle error
+      throw Exception('Error loading vemdors Products: $e');
+      
+    }
+  }
+
 }
