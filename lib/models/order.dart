@@ -51,7 +51,7 @@ class Order {
       city: map['city'] as String,
       locality: map['locality'] as String,
       productName: map['productName'] as String,
-      productPrice: map['productPrice'] as double,
+      productPrice: (map['productPrice'] as num).toDouble(),
       quantity: map['quantity'] as int,
       category: map['category'] as String,
       image: map['image'] as String,
