@@ -25,7 +25,7 @@ class ProductController {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     String? token = preferences.getString('auth_token');
     try {
-      if (pickedImages != null) {
+      if (pickedImages.isNotEmpty) {
         final cloudinary = CloudinaryPublic(cloudName, uploadPreset);
         List<String> images = [];
         // loop through each image in the pickedImages list
@@ -115,7 +115,24 @@ class ProductController {
       throw Exception('Error loading vemdors Products: $e');
     }
   }
+  Future<List<String>> uploadImageToCloudinary(List<File>? pickedImages,Product product) async{
+    final cloudinary = CloudinaryPublic(cloudName, uploadPreset);
+    List<String> uploadedImages = [];
+    // loop through each image in the pickedImages list
+    for (var image in pickedImages!) {
+      CloudinaryResponse cloudinaryResponse = await cloudinary.uploadFile(
+        CloudinaryFile.fromFile(
+          image.path,
+          folder: product.productName,
+        ),
+      );
+      // add the secure URL of the uploaded image to the images list
+      uploadedImages.add(cloudinaryResponse.secureUrl);
+    }
+    return uploadedImages;
 
+  }
+  // update product
   Future<void> updateProduct({
     required Product product,
     required BuildContext context,
@@ -123,24 +140,11 @@ class ProductController {
   }) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     String? token = preferences.getString('auth_token');
-    List<String> images = product.images;
+    
     if (pickedImages != null) {
-      final cloudinary = CloudinaryPublic(cloudName, uploadPreset);
-      List<String> images = [];
-      // loop through each image in the pickedImages list
-      for (File pickedImage in pickedImages) {
-        CloudinaryResponse cloudinaryResponse = await cloudinary.uploadFile(
-          CloudinaryFile.fromFile(
-            pickedImage.path,
-            folder: product.productName,
-          ),
-        );
-        // add the secure URL of the uploaded image to the images list
-        images.add(cloudinaryResponse.secureUrl);
-      }
+      await uploadImageToCloudinary(pickedImages, product);
     }
     final updatedData = product.toMap();
-    updatedData['images'] = images;
 
     http.Response response = await http.put(
       Uri.parse('$uri/api/edit-product/${product.id}'),
