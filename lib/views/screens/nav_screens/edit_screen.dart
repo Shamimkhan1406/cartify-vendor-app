@@ -1,6 +1,7 @@
 import 'package:cartify_vendor/controllers/product_controller.dart';
 import 'package:cartify_vendor/provider/vendor_product_provider.dart';
 import 'package:cartify_vendor/provider/vendor_provider.dart';
+import 'package:cartify_vendor/views/screens/detail/screens/edit_product_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -21,9 +22,8 @@ class _EditScreenState extends ConsumerState<EditScreen> {
     //futurePopularProductsFuture = ProductController().loadPopularProducts();
     final products = ref.read(vendorproductProvider);
     if (products.isEmpty) {
-     _fetchProducts();
-    }
-    else{
+      _fetchProducts();
+    } else {
       setState(() {
         isLoading = false;
       });
@@ -44,6 +44,7 @@ class _EditScreenState extends ConsumerState<EditScreen> {
       });
     }
   }
+
   @override
   Widget build(BuildContext context) {
     final products = ref.watch(vendorproductProvider);
@@ -59,7 +60,12 @@ class _EditScreenState extends ConsumerState<EditScreen> {
             itemCount: products.length,
             itemBuilder: (context, index) {
               final product = products[index];
-              return Center(child: Text(product.fullName),);
+              return InkWell(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditProductDetailScreen(product: product)));
+                },
+                child: Center(child: Text(product.productName)),
+              );
               //ProductItemWidget(product: product);
             },
           ),
