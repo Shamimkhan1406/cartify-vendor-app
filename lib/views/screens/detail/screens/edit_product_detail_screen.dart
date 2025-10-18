@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:cartify_vendor/models/product.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class EditProductDetailScreen extends StatefulWidget {
   final Product product;
@@ -18,6 +21,8 @@ class _EditProductDetailScreenState extends State<EditProductDetailScreen> {
   late TextEditingController _quantityController;
   late TextEditingController _descriptionController;
 
+  List<File> pickedImages = [];
+
   @override
   void initState() {
     super.initState();
@@ -33,6 +38,13 @@ class _EditProductDetailScreenState extends State<EditProductDetailScreen> {
     _descriptionController = TextEditingController(
       text: widget.product.description,
     );
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await ImagePicker().pickMultiImage();
+    setState(() {
+      pickedImages = pickedFile.map((file) => File(file.path)).toList();
+    });
   }
 
   @override
@@ -94,10 +106,26 @@ class _EditProductDetailScreenState extends State<EditProductDetailScreen> {
                       widget.product.images
                           .map(
                             (imageUrl) => InkWell(
-                              onTap: () {},
+                              onTap: () {
+                                _pickImage();
+                              },
                               child: Image.network(imageUrl,
                                   width: 100, height: 100, fit: BoxFit.cover),
                             ),
+                          )
+                          .toList(),
+                ),
+              SizedBox(height: 10),
+              // display picked images
+              if (pickedImages.isNotEmpty)
+                const Text('Picked Images'),
+                Wrap(
+                  spacing: 10,
+                  children:
+                      pickedImages
+                          .map(
+                            (image) => Image.file(image,
+                                width: 100, height: 100, fit: BoxFit.cover),
                           )
                           .toList(),
                 ),
