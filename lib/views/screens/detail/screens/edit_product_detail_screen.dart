@@ -5,10 +5,10 @@ class EditProductDetailScreen extends StatefulWidget {
   final Product product;
 
   const EditProductDetailScreen({super.key, required this.product});
-  
 
   @override
-  State<EditProductDetailScreen> createState() => _EditProductDetailScreenState();
+  State<EditProductDetailScreen> createState() =>
+      _EditProductDetailScreenState();
 }
 
 class _EditProductDetailScreenState extends State<EditProductDetailScreen> {
@@ -21,11 +21,20 @@ class _EditProductDetailScreenState extends State<EditProductDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _productnameController = TextEditingController(text: widget.product.productName);
-    _productpriceController = TextEditingController(text: widget.product.productPrice.toString());
-    _quantityController = TextEditingController(text: widget.product.quantity.toString());
-    _descriptionController = TextEditingController(text: widget.product.description);
+    _productnameController = TextEditingController(
+      text: widget.product.productName,
+    );
+    _productpriceController = TextEditingController(
+      text: widget.product.productPrice.toString(),
+    );
+    _quantityController = TextEditingController(
+      text: widget.product.quantity.toString(),
+    );
+    _descriptionController = TextEditingController(
+      text: widget.product.description,
+    );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,9 +45,7 @@ class _EditProductDetailScreenState extends State<EditProductDetailScreen> {
             children: [
               TextFormField(
                 controller: _productnameController,
-                decoration: const InputDecoration(
-                  labelText: 'Product Name',
-                ),
+                decoration: const InputDecoration(labelText: 'Product Name'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a product name';
@@ -48,9 +55,7 @@ class _EditProductDetailScreenState extends State<EditProductDetailScreen> {
               ),
               TextFormField(
                 controller: _productpriceController,
-                decoration: const InputDecoration(
-                  labelText: 'Product Price',
-                ),
+                decoration: const InputDecoration(labelText: 'Product Price'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a product price';
@@ -60,9 +65,7 @@ class _EditProductDetailScreenState extends State<EditProductDetailScreen> {
               ),
               TextFormField(
                 controller: _quantityController,
-                decoration: const InputDecoration(
-                  labelText: 'Quantity',
-                ),
+                decoration: const InputDecoration(labelText: 'Quantity'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a quantity';
@@ -74,9 +77,7 @@ class _EditProductDetailScreenState extends State<EditProductDetailScreen> {
                 maxLength: 500,
                 maxLines: 5,
                 controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                ),
+                decoration: const InputDecoration(labelText: 'Description'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a description';
@@ -84,9 +85,25 @@ class _EditProductDetailScreenState extends State<EditProductDetailScreen> {
                   return null;
                 },
               ),
+              SizedBox(height: 20),
+              // display current product images
+              if (widget.product.images.isNotEmpty)
+                Wrap(
+                  spacing: 10,
+                  children:
+                      widget.product.images
+                          .map(
+                            (imageUrl) => InkWell(
+                              onTap: () {},
+                              child: Image.network(imageUrl,
+                                  width: 100, height: 100, fit: BoxFit.cover),
+                            ),
+                          )
+                          .toList(),
+                ),
             ],
           ),
-        )
+        ),
       ),
     );
   }
