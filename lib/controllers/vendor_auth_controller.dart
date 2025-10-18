@@ -4,6 +4,7 @@ import 'package:cartify_vendor/global_variables.dart';
 import 'package:cartify_vendor/models/vendor.dart';
 import 'package:cartify_vendor/provider/vendor_provider.dart';
 import 'package:cartify_vendor/services/manage_http_response.dart';
+import 'package:cartify_vendor/views/screens/authentication/login_screen.dart';
 import 'package:cartify_vendor/views/screens/main_vendor_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -70,6 +71,33 @@ class VendorAuthController {
       });
     } catch (e) {
       showSnackBar(context, e.toString());
+    }
+  }
+  // sign out user
+  Future<void> signOutUser({
+    required BuildContext context,
+    required WidgetRef ref,
+  }) async {
+    try {
+      // access shared prefferences to save the token and user data storage
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      // remove the auth token from shared preferences
+      await preferences.remove("auth_token");
+      // remove the user data from shared preferences
+      await preferences.remove("user");
+      // clear the app state with the user data using reverpod
+      ref.read(vendorProvider.notifier).signOut();
+      // navigate to the login screen
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => LoginScreen()),
+        (route) => false,
+      );
+      // show a snackbar with the message
+      showSnackBar(context, "logged out successfully");
+    } catch (e) {
+      print('Error during signout: $e');
+      showSnackBar(context, "Signout failed: ${e.toString()}");
     }
   }
   // get user data
