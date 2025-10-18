@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cartify_vendor/controllers/product_controller.dart';
 import 'package:cartify_vendor/models/product.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -16,6 +17,7 @@ class EditProductDetailScreen extends StatefulWidget {
 
 class _EditProductDetailScreenState extends State<EditProductDetailScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final ProductController _productController = ProductController();
   late TextEditingController _productnameController;
   late TextEditingController _productpriceController;
   late TextEditingController _quantityController;
@@ -45,6 +47,41 @@ class _EditProductDetailScreenState extends State<EditProductDetailScreen> {
     setState(() {
       pickedImages = pickedFile.map((file) => File(file.path)).toList();
     });
+  }
+
+  Future<void> _updateProduct() async {
+    if (_formKey.currentState!.validate()) {
+      // upload images if selected
+      List<String> uploadImages =
+          pickedImages.isNotEmpty
+              ? await _productController.uploadImageToCloudinary(
+                pickedImages,
+                widget.product,
+              )
+              : widget.product.images;
+      // create an instance of product model
+      final updatedProduct = Product(
+        id: widget.product.id,
+        productName: _productnameController.text,
+        productPrice: double.parse(_productpriceController.text),
+        quantity: int.parse(_quantityController.text),
+        description: _descriptionController.text,
+        images: pickedImages.isNotEmpty ? uploadImages : widget.product.images,
+        category: widget.product.category,
+        subCategory: widget.product.subCategory,
+        vendorId: widget.product.vendorId,
+        fullName: widget.product.fullName,
+        avgRating: widget.product.avgRating,
+        totalRating: widget.product.totalRating,
+      );
+      await _productController.updateProduct(
+        product: updatedProduct,
+        context: context,
+        pickedImages: pickedImages,
+      );
+    } else {
+      print("Form is not valid");
+    }
   }
 
   @override
@@ -109,26 +146,40 @@ class _EditProductDetailScreenState extends State<EditProductDetailScreen> {
                               onTap: () {
                                 _pickImage();
                               },
-                              child: Image.network(imageUrl,
-                                  width: 100, height: 100, fit: BoxFit.cover),
+                              child: Image.network(
+                                imageUrl,
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           )
                           .toList(),
                 ),
               SizedBox(height: 10),
               // display picked images
-              if (pickedImages.isNotEmpty)
-                const Text('Picked Images'),
-                Wrap(
-                  spacing: 10,
-                  children:
-                      pickedImages
-                          .map(
-                            (image) => Image.file(image,
-                                width: 100, height: 100, fit: BoxFit.cover),
-                          )
-                          .toList(),
-                ),
+              if (pickedImages.isNotEmpty) const Text('Picked Images'),
+              Wrap(
+                spacing: 10,
+                children:
+                    pickedImages
+                        .map(
+                          (image) => Image.file(
+                            image,
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                        .toList(),
+              ),
+              // display upload button
+              ElevatedButton(
+                onPressed: () {
+                  _updateProduct();
+                },
+                child: const Text("Update Product"),
+              ),
             ],
           ),
         ),
