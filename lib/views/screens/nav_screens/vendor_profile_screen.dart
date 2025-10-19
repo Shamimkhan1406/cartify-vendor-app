@@ -35,8 +35,10 @@ class _VendorProfileScreenState extends ConsumerState<VendorProfileScreen> {
 
   // show edit profile dialog
   void _showEditProfileDialog(BuildContext context) {
+    final user = ref.read(vendorProvider);
     final TextEditingController storeDescriptionController =
         TextEditingController();
+    storeDescriptionController.text = user?.storeDescription ?? "";
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -268,32 +270,41 @@ class _VendorProfileScreenState extends ConsumerState<VendorProfileScreen> {
                             ),
                   ),
                   Align(
-                    alignment: Alignment(0.05, 0.17),
-                    child: InkWell(
-                      onTap: () {
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => ShippingAddressScreen(),
-                        //   ),
-                        // );
-                      },
-                      child:
-                          user.state != ""
-                              ? Text(
-                                user.state,
-                                style: GoogleFonts.montserrat(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              )
-                              : Text(
-                                'State',
-                                style: GoogleFonts.montserrat(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
+                    alignment: Alignment(0, 0.15),
+                    child: Text(
+                      user.email,
+                      style: GoogleFonts.montserrat(
+                        color: Colors.white,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                  // text
+                  Align(
+                    alignment: Alignment(-0.9, 0.4),
+                    child: Text(
+                      'Store Description',
+                      style: GoogleFonts.montserrat(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                  // store desciption
+                  Align(
+                    alignment: Alignment(-0.9, 0.6),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        user.storeDescription != ""
+                            ? user.storeDescription!
+                            : "No description",
+                        style: GoogleFonts.montserrat(
+                          color: Colors.white,
+                          fontSize: 15,
+                        ),
+                      ),
                     ),
                   ),
                 ],
