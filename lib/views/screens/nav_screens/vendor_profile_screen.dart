@@ -2,6 +2,7 @@
 import 'package:cartify_vendor/controllers/vendor_auth_controller.dart';
 import 'package:cartify_vendor/provider/vendor_provider.dart';
 import 'package:cartify_vendor/views/screens/nav_screens/orders_screen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -15,6 +16,59 @@ class VendorProfileScreen extends ConsumerStatefulWidget {
 
 class _VendorProfileScreenState extends ConsumerState<VendorProfileScreen> {
   final VendorAuthController _vendorAuthController = VendorAuthController();
+  // show edit profile dialog
+  void _showEditProfileDialog( BuildContext context){
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+          
+        ),
+        title: Text('Edit profile', style: GoogleFonts.montserrat(
+          fontWeight: FontWeight.bold,
+          color: Colors.black87,
+        ),),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            InkWell(
+              onTap: (){},
+              child: CircleAvatar(
+                radius: 50,
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: Icon(CupertinoIcons.photo,size: 24, color: Colors.white,),
+                ),
+              ),
+            ),
+            SizedBox(height: 10,),
+            TextFormField(
+              maxLines: 3,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                labelText: 'Store Description',
+                labelStyle: GoogleFonts.montserrat(
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: (){
+            Navigator.pop(context);
+          }, child: Text('Cancel', style: GoogleFonts.montserrat(
+            color: Colors.blueGrey,
+          ),),),
+          ElevatedButton(onPressed: (){}, child: Text('Save', style: GoogleFonts.montserrat(
+            color: Colors.green,
+          ),),),
+        ],
+      );
+    });
+  }
   // show sign out dialog
    void _showSignOutDialog( BuildContext context) {
     showDialog(context: context, builder: (BuildContext context){
@@ -97,7 +151,9 @@ class _VendorProfileScreenState extends ConsumerState<VendorProfileScreen> {
                       Align(
                         alignment: Alignment(0.23, -0.61),
                         child: InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            _showEditProfileDialog(context);
+                          },
                           child: Image.asset(
                             'assets/icons/edit.png',
                             width: 19,
