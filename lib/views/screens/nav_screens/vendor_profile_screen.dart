@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:cartify_vendor/controllers/vendor_auth_controller.dart';
@@ -15,7 +14,8 @@ class VendorProfileScreen extends ConsumerStatefulWidget {
   const VendorProfileScreen({super.key});
 
   @override
-  ConsumerState<VendorProfileScreen> createState() => _VendorProfileScreenState();
+  ConsumerState<VendorProfileScreen> createState() =>
+      _VendorProfileScreenState();
 }
 
 class _VendorProfileScreenState extends ConsumerState<VendorProfileScreen> {
@@ -26,102 +26,147 @@ class _VendorProfileScreenState extends ConsumerState<VendorProfileScreen> {
   // function to pick an Image
   Future<void> pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if(pickedFile != null){
+    if (pickedFile != null) {
       imageNotifier.value = File(pickedFile.path);
-    }
-    else{
+    } else {
       showSnackBar(context, 'No image selected');
     }
   }
+
   // show edit profile dialog
-  void _showEditProfileDialog( BuildContext context){
-    showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-          
-        ),
-        title: Text('Edit profile', style: GoogleFonts.montserrat(
-          fontWeight: FontWeight.bold,
-          color: Colors.black87,
-        ),),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            InkWell(
-              onTap: (){},
-              child: CircleAvatar(
-                radius: 50,
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: Icon(CupertinoIcons.photo,size: 24, color: Colors.white,),
+  void _showEditProfileDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: Text(
+            'Edit profile',
+            style: GoogleFonts.montserrat(
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ValueListenableBuilder(
+                valueListenable: imageNotifier,
+                builder: (context, value, child) {
+                  return InkWell(
+                    onTap: () {
+                      pickImage();
+                    },
+                    child: value != null
+                        ? CircleAvatar(
+                            radius: 50,
+                            backgroundImage: FileImage(value),
+                          )
+                        :
+                    CircleAvatar(
+                      radius: 50,
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: Icon(
+                          CupertinoIcons.photo,
+                          size: 24,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              SizedBox(height: 10),
+              TextFormField(
+                maxLines: 3,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  labelText: 'Store Description',
+                  labelStyle: GoogleFonts.montserrat(color: Colors.black87),
                 ),
               ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.montserrat(color: Colors.blueGrey),
+              ),
             ),
-            SizedBox(height: 10,),
-            TextFormField(
-              maxLines: 3,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                labelText: 'Store Description',
-                labelStyle: GoogleFonts.montserrat(
-                  color: Colors.black87,
-                ),
+            ElevatedButton(
+              onPressed: () {},
+              child: Text(
+                'Save',
+                style: GoogleFonts.montserrat(color: Colors.green),
               ),
             ),
           ],
-        ),
-        actions: [
-          TextButton(onPressed: (){
-            Navigator.pop(context);
-          }, child: Text('Cancel', style: GoogleFonts.montserrat(
-            color: Colors.blueGrey,
-          ),),),
-          ElevatedButton(onPressed: (){}, child: Text('Save', style: GoogleFonts.montserrat(
-            color: Colors.green,
-          ),),),
-        ],
-      );
-    });
+        );
+      },
+    );
   }
+
   // show sign out dialog
-   void _showSignOutDialog( BuildContext context) {
-    showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),  
-        title: Text('Are You Sure?', style: GoogleFonts.montserrat(
-          fontWeight: FontWeight.bold,
-          color: Colors.black87,
-        ),),
-        content: Text('Do you want to sign out?', style: GoogleFonts.montserrat(
-          color: Colors.blueGrey,
-        ),),
-        actions: [
-          TextButton(onPressed: (){
-            Navigator.pop(context);
-          }, child: Text('No', style: GoogleFonts.montserrat(
-            color: Colors.blueGrey,
-          ),),),
-          TextButton(onPressed: () async {
-            await _vendorAuthController.signOutUser(context: context, ref: ref,);
-          }, child: Text('Yes', style: GoogleFonts.montserrat(
-            color: Colors.red,
-          ),),),
-        ],
-      );
-    });
-   } 
+  void _showSignOutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: Text(
+            'Are You Sure?',
+            style: GoogleFonts.montserrat(
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          content: Text(
+            'Do you want to sign out?',
+            style: GoogleFonts.montserrat(color: Colors.blueGrey),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text(
+                'No',
+                style: GoogleFonts.montserrat(color: Colors.blueGrey),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                await _vendorAuthController.signOutUser(
+                  context: context,
+                  ref: ref,
+                );
+              },
+              child: Text(
+                'Yes',
+                style: GoogleFonts.montserrat(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    
-    
     final user = ref.read(vendorProvider);
-    
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -291,13 +336,17 @@ class _VendorProfileScreenState extends ConsumerState<VendorProfileScreen> {
             ),
             const SizedBox(height: 10),
             ListTile(
-              onTap: () async{
+              onTap: () async {
                 // implement account deletion functionality
                 //await authController.deleteAccount(context: context,id: user.id, ref: ref);
               },
               leading: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 9),
-                child: Icon(Icons.delete_outline_outlined, color: Colors.red, size: 30,),
+                child: Icon(
+                  Icons.delete_outline_outlined,
+                  color: Colors.red,
+                  size: 30,
+                ),
               ),
               title: Text(
                 'Delete Account',
