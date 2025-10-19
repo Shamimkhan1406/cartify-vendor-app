@@ -12,6 +12,8 @@ class Vendor {
   final String role;
   final String password;
   final String token;
+  final String? storeImage;
+  final String? storeDescription;
 
   Vendor({
     required this.id,
@@ -23,6 +25,8 @@ class Vendor {
     required this.role,
     required this.password,
     required this.token,
+    this.storeImage,
+    this.storeDescription,
   });
 
   // converting to map so that we can easily convert to json because the data will be sent to mongoDB in json formate
@@ -38,6 +42,8 @@ class Vendor {
       'role': role,
       'password': password,
       'token': token,
+      'storeImage': storeImage,
+      'storeDescription': storeDescription
     };
   }
   // converting to json
@@ -56,6 +62,8 @@ class Vendor {
       role: map['role'] as String? ?? '',
       password: map['password'] as String? ?? '',
       token: map['token'] as String? ?? '',
+      storeImage: map['storeImage'] as String? ?? '',
+      storeDescription: map['storeDescription'] as String? ?? '',
     );
   }
 

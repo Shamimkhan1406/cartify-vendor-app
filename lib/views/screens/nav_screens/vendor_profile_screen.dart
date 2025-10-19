@@ -35,6 +35,8 @@ class _VendorProfileScreenState extends ConsumerState<VendorProfileScreen> {
 
   // show edit profile dialog
   void _showEditProfileDialog(BuildContext context) {
+    final TextEditingController storeDescriptionController =
+        TextEditingController();
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -59,28 +61,29 @@ class _VendorProfileScreenState extends ConsumerState<VendorProfileScreen> {
                     onTap: () {
                       pickImage();
                     },
-                    child: value != null
-                        ? CircleAvatar(
-                            radius: 50,
-                            backgroundImage: FileImage(value),
-                          )
-                        :
-                    CircleAvatar(
-                      radius: 50,
-                      child: Align(
-                        alignment: Alignment.bottomRight,
-                        child: Icon(
-                          CupertinoIcons.photo,
-                          size: 24,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
+                    child:
+                        value != null
+                            ? CircleAvatar(
+                              radius: 50,
+                              backgroundImage: FileImage(value),
+                            )
+                            : CircleAvatar(
+                              radius: 50,
+                              child: Align(
+                                alignment: Alignment.bottomRight,
+                                child: Icon(
+                                  CupertinoIcons.photo,
+                                  size: 24,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
                   );
                 },
               ),
               SizedBox(height: 10),
               TextFormField(
+                controller: storeDescriptionController,
                 maxLines: 3,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
@@ -103,7 +106,16 @@ class _VendorProfileScreenState extends ConsumerState<VendorProfileScreen> {
               ),
             ),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () async {
+                await _vendorAuthController.updateVendorData(
+                  context: context,
+                  id: ref.read(vendorProvider)!.id,
+                  storeImage: imageNotifier.value,
+                  storeDescription: storeDescriptionController.text,
+                  ref: ref,
+                );
+                Navigator.pop(context);
+              },
               child: Text(
                 'Save',
                 style: GoogleFonts.montserrat(color: Colors.green),
@@ -180,7 +192,8 @@ class _VendorProfileScreenState extends ConsumerState<VendorProfileScreen> {
                 children: [
                   Align(
                     alignment: Alignment.center,
-                    child: Image.network(
+                    child:
+                    Image.network(
                       "https://firebasestorage.googleapis.com/v0/b/codeless-app.appspot.com/o/FBrbGWQJqIbpA5ZHEpajYAEh1V93%2Fuploads%2Fimages%2F78dbff80_1dfe_1db2_8fe9_13f5839e17c1_bg2.png?alt=media",
                       width: MediaQuery.of(context).size.width,
                       height: 451,
@@ -203,7 +216,14 @@ class _VendorProfileScreenState extends ConsumerState<VendorProfileScreen> {
                     children: [
                       Align(
                         alignment: Alignment(0, -0.53),
-                        child: CircleAvatar(
+                        child: user!.storeImage != '' ?
+                        CircleAvatar(
+                          radius: 65,
+                          backgroundImage: NetworkImage(
+                            user.storeImage!,
+                          ),
+                        ) :
+                         CircleAvatar(
                           radius: 65,
                           backgroundImage: NetworkImage(
                             'https://cdn.pixabay.com/photo/2014/04/03/10/32/businessman-310819_1280.png',
@@ -229,7 +249,7 @@ class _VendorProfileScreenState extends ConsumerState<VendorProfileScreen> {
                   Align(
                     alignment: Alignment(0, 0.03),
                     child:
-                        user!.fullName != ""
+                        user.fullName != ""
                             ? Text(
                               user.fullName,
                               style: GoogleFonts.montserrat(

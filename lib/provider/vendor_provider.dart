@@ -15,6 +15,8 @@ class VendorProvider extends StateNotifier<Vendor?> {
           role: '',
           password: '',
           token: '',
+          storeImage: '',
+          storeDescription: '',
         ),
       );
 

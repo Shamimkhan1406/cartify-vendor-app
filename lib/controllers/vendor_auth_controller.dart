@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cartify_vendor/global_variables.dart';
 import 'package:cartify_vendor/models/vendor.dart';
@@ -6,6 +7,7 @@ import 'package:cartify_vendor/provider/vendor_provider.dart';
 import 'package:cartify_vendor/services/manage_http_response.dart';
 import 'package:cartify_vendor/views/screens/authentication/login_screen.dart';
 import 'package:cartify_vendor/views/screens/main_vendor_screen.dart';
+import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -15,37 +17,63 @@ final providerContainer = ProviderContainer();
 
 class VendorAuthController {
   //signup vendor
-  Future<void> signupVendor({required String fullName, required String email, required String password, required context }) async {
-
+  Future<void> signupVendor({
+    required String fullName,
+    required String email,
+    required String password,
+    required context,
+  }) async {
     try {
-      Vendor vendor = Vendor(id: '', fullName: fullName, email: email, state: '', city: '', locality: '', role: '', password: password, token: '');
-      http.Response response = await http.post(Uri.parse("$uri/api/v2/vendor/signup"),
-      body: vendor.toJson(),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
+      Vendor vendor = Vendor(
+        id: '',
+        fullName: fullName,
+        email: email,
+        state: '',
+        city: '',
+        locality: '',
+        role: '',
+        password: password,
+        token: '',
       );
-      manageHttpResponse(response: response, context: context, onSuccess: (){
-        showSnackBar(context, "Vendor signed up successfully");
-      });
+      http.Response response = await http.post(
+        Uri.parse("$uri/api/v2/vendor/signup"),
+        body: vendor.toJson(),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+      manageHttpResponse(
+        response: response,
+        context: context,
+        onSuccess: () {
+          showSnackBar(context, "Vendor signed up successfully");
+        },
+      );
     } catch (e) {
       showSnackBar(context, e.toString());
     }
   }
+
   // signin vendor
-  Future<void> signinVendor({required String email, required String password, required context,required WidgetRef ref}) async{
+  Future<void> signinVendor({
+    required String email,
+    required String password,
+    required context,
+    required WidgetRef ref,
+  }) async {
     try {
-      http.Response response = await http.post(Uri.parse("$uri/api/v2/vendor/signin"),
-      body: jsonEncode({
-        'email': email,
-        'password': password,
-      }),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
+      http.Response response = await http.post(
+        Uri.parse("$uri/api/v2/vendor/signin"),
+        body: jsonEncode({'email': email, 'password': password}),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
       );
-      manageHttpResponse(response: response, context: context, onSuccess: ()async{
-        // access shared prefferences to save the token and user data storage
+      manageHttpResponse(
+        response: response,
+        context: context,
+        onSuccess: () async {
+          // access shared prefferences to save the token and user data storage
           SharedPreferences preferences = await SharedPreferences.getInstance();
           // Extract the authentication token from res body
           String token = jsonDecode(response.body)['token'];
@@ -68,11 +96,13 @@ class VendorAuthController {
             // show a snackbar with the message
             showSnackBar(context, "logged in successfully");
           }
-      });
+        },
+      );
     } catch (e) {
       showSnackBar(context, e.toString());
     }
   }
+
   // sign out user
   Future<void> signOutUser({
     required BuildContext context,
@@ -100,6 +130,7 @@ class VendorAuthController {
       showSnackBar(context, "Signout failed: ${e.toString()}");
     }
   }
+
   // get user data
   getUserData(context, WidgetRef ref) async {
     try {
@@ -131,6 +162,52 @@ class VendorAuthController {
     } catch (e) {
       ///print('Error getting user data: $e');
       showSnackBar(context, "Error getting user data: ${e.toString()}");
+    }
+  }
+
+  // update user's state city and locality
+  Future<void> updateVendorData({
+    required BuildContext context,
+    required String id,
+    required File? storeImage,
+    required String storeDescription,
+    required WidgetRef ref,
+  }) async {
+    try {
+      final cloudinary = CloudinaryPublic(cloudName, uploadPreset);
+      CloudinaryResponse imageResponse = await cloudinary.uploadFile(
+        CloudinaryFile.fromFile(
+          storeImage!.path,
+          identifier: "pickedImage",
+          folder: "storeImage",
+        ),
+      );
+      String image = imageResponse.secureUrl;
+      // make a PUT request to update the user location
+      http.Response response = await http.put(
+        Uri.parse('$uri/api/vendor/$id'),
+        // encode the updated data the state city and locality as json
+        body: jsonEncode({
+          'storeImage': image,
+          'storeDescription': storeDescription,
+        }),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+      manageHttpResponse(
+        response: response,
+        context: context,
+        onSuccess: () async {
+          final updatedUser = jsonDecode(response.body);
+          final userJson = jsonEncode(updatedUser);
+          ref.read(vendorProvider.notifier).setVendor(userJson);
+          showSnackBar(context, "Vendor data updated successfully");
+        },
+      );
+    } catch (e) {
+      print('Error updating Vendor data: $e');
+      showSnackBar(context, "vendor data update failed: ${e.toString()}");
     }
   }
 }
