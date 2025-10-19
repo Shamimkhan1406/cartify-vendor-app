@@ -90,97 +90,109 @@ class _EditProductDetailScreenState extends State<EditProductDetailScreen> {
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _productnameController,
-                decoration: const InputDecoration(labelText: 'Product Name'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a product name';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _productpriceController,
-                decoration: const InputDecoration(labelText: 'Product Price'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a product price';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _quantityController,
-                decoration: const InputDecoration(labelText: 'Quantity'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a quantity';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                maxLength: 500,
-                maxLines: 5,
-                controller: _descriptionController,
-                decoration: const InputDecoration(labelText: 'Description'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a description';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-              // display current product images
-              if (widget.product.images.isNotEmpty)
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                const SizedBox(height: 50),
+                const Text(
+                  'Edit Product details',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: _productnameController,
+                  decoration: const InputDecoration(labelText: 'Product Name'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a product name';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _productpriceController,
+                  decoration: const InputDecoration(labelText: 'Product Price'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a product price';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _quantityController,
+                  decoration: const InputDecoration(labelText: 'Quantity'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a quantity';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  maxLength: 500,
+                  maxLines: 5,
+                  controller: _descriptionController,
+                  decoration: const InputDecoration(labelText: 'Description'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a description';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 20),
+                // display current product images
+                if (widget.product.images.isNotEmpty)
+                  Wrap(
+                    spacing: 10,
+                    children:
+                        widget.product.images
+                            .map(
+                              (imageUrl) => InkWell(
+                                onTap: () {
+                                  _pickImage();
+                                },
+                                child: Image.network(
+                                  imageUrl,
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            )
+                            .toList(),
+                  ),
+                SizedBox(height: 10),
+                // display picked images
+                if (pickedImages.isNotEmpty) const Text('Picked Images'),
                 Wrap(
                   spacing: 10,
                   children:
-                      widget.product.images
+                      pickedImages
                           .map(
-                            (imageUrl) => InkWell(
-                              onTap: () {
-                                _pickImage();
-                              },
-                              child: Image.network(
-                                imageUrl,
-                                width: 100,
-                                height: 100,
-                                fit: BoxFit.cover,
-                              ),
+                            (image) => Image.file(
+                              image,
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
                             ),
                           )
                           .toList(),
                 ),
-              SizedBox(height: 10),
-              // display picked images
-              if (pickedImages.isNotEmpty) const Text('Picked Images'),
-              Wrap(
-                spacing: 10,
-                children:
-                    pickedImages
-                        .map(
-                          (image) => Image.file(
-                            image,
-                            width: 100,
-                            height: 100,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                        .toList(),
-              ),
-              // display upload button
-              ElevatedButton(
-                onPressed: () {
-                  _updateProduct();
-                },
-                child: const Text("Update Product"),
-              ),
-            ],
+                // display upload button
+                ElevatedButton(
+                  onPressed: () {
+                    _updateProduct();
+                  },
+                  child: const Text("Update Product"),
+                ),
+              ],
+            ),
           ),
         ),
       ),

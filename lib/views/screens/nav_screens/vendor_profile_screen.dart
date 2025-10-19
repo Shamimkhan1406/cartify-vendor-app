@@ -281,7 +281,7 @@ class _VendorProfileScreenState extends ConsumerState<VendorProfileScreen> {
                   ),
                   // text
                   Align(
-                    alignment: Alignment(-0.9, 0.4),
+                    alignment: Alignment(-0.95, 0.4),
                     child: Text(
                       'Store Description',
                       style: GoogleFonts.montserrat(
