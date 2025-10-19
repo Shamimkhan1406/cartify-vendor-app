@@ -119,22 +119,33 @@ class _EditScreenState extends ConsumerState<EditScreen> {
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SizedBox(
-            height: 250,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: products.length,
-              itemBuilder: (context, index) {
-                final product = products[index];
-                return InkWell(
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => EditProductDetailScreen(product: product)));
-                  },
-                  child: Center(child: Text(product.productName)),
-                );
-                //ProductItemWidget(product: product);
-              },
-            ),
+          : ListView.builder(
+            shrinkWrap: true,
+            scrollDirection: Axis.vertical,
+            itemCount: products.length,
+            itemBuilder: (context, index) {
+              final product = products[index];
+              return InkWell(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditProductDetailScreen(product: product)));
+                },
+                child: ListTile(
+                  leading: Image.network(
+                    product.images[0],
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  ),
+                  title: Text(product.productName,
+                      style: GoogleFonts.lato(
+                        fontWeight: FontWeight.bold,
+                      ),),
+                  subtitle: Text(product.category),
+                  trailing: Text('₹${product.productPrice.toStringAsFixed(2)}'),
+                )
+              );
+              //ProductItemWidget(product: product);
+            },
           ),
     );
   }
