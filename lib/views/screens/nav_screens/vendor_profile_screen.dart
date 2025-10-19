@@ -1,14 +1,18 @@
 
+import 'dart:io';
+
 import 'package:cartify_vendor/controllers/vendor_auth_controller.dart';
 import 'package:cartify_vendor/provider/vendor_provider.dart';
+import 'package:cartify_vendor/services/manage_http_response.dart';
 import 'package:cartify_vendor/views/screens/nav_screens/orders_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 
 class VendorProfileScreen extends ConsumerStatefulWidget {
-  VendorProfileScreen({super.key});
+  const VendorProfileScreen({super.key});
 
   @override
   ConsumerState<VendorProfileScreen> createState() => _VendorProfileScreenState();
@@ -16,6 +20,19 @@ class VendorProfileScreen extends ConsumerStatefulWidget {
 
 class _VendorProfileScreenState extends ConsumerState<VendorProfileScreen> {
   final VendorAuthController _vendorAuthController = VendorAuthController();
+  final ImagePicker picker = ImagePicker();
+  // define a value notifier to manage the image state
+  final ValueNotifier<File?> imageNotifier = ValueNotifier<File?>(null);
+  // function to pick an Image
+  Future<void> pickImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if(pickedFile != null){
+      imageNotifier.value = File(pickedFile.path);
+    }
+    else{
+      showSnackBar(context, 'No image selected');
+    }
+  }
   // show edit profile dialog
   void _showEditProfileDialog( BuildContext context){
     showDialog(context: context, builder: (BuildContext context){
